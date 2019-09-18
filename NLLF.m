@@ -2,10 +2,11 @@
 % t: grid of time (vector) last element:T - floor(T/dt)*dt
 % u: initial condition
 function U = NLLF(x,t,u,f)
-    k0 = 50/1000;
-    v1max = 100/3; %m/s (120km/h)
+    k0 = 50;
+    v1max = 120; %m/s (120km/h)
     dq = @(x) v1max.*exp(-(x./k0).^2./2).*(1-x/k0);
     n_t = length(t)-1;
+    %CFL = 0.9;
     dt = t(2)-t(1);
     dx = x(2)-x(1);
     U = zeros(length(x),n_t);
@@ -29,9 +30,8 @@ function U = NLLF(x,t,u,f)
         %One-sided BC (FTBS)
         %Ghost points
         Uend1 = 0;
-        U1 = 1/10;
+        U1 = 0;
         U(end,i+1) = U(end,i)-(dt/dx)*(flux(U(end,i),Uend1,a)-flux(U(end-1,i),U(end,i),a));
         U(1,i+1) = U(1,i)-(dt/dx)*(flux(U(1,i),U(2,i),a)-flux(U1,U(1,i),a));
     end    
 end
-

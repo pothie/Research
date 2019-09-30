@@ -19,11 +19,11 @@ function U = NLLF(x,t,u,f,df,U1,Uend1)
     % alpha = max flux'
     flux = @(x,y,alpha) (1/2)*(f(x)+f(y))-(1*alpha)*(-x+y);
 
-    for i=1:n_t
+    for i=1:n_t-1
         a = max(abs(df(U(:,i))));
-        if (i==n_t) && (t(end)-t(end-1)~=dt)
+        if (i==n_t-1) && (t(end)-t(end-1)~=dt)
             dt = t(end)-t(end-1);
-        else
+        end
         U(2:end-1,i+1)= U(2:end-1,i)-(dt/dx)*(flux(U(2:end-1,i),U(3:end,i),a)...
             -flux(U(1:end-2,i),U(2:end-1,i),a));
         
@@ -44,8 +44,6 @@ function U = NLLF(x,t,u,f,df,U1,Uend1)
         U(1,i+1) = U1(i); % Given U(0,t)
          %U(1,i)-(dt/dx)*(flux(U(1,i),U(2,i),a)-flux(U1(i),U(1,i),a));
 
-        end
-        
     end  
     end
 end

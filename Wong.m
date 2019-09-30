@@ -1,5 +1,5 @@
 % Wong
-dt = 1.5e-3/60; %hour seconds
+dt = 1.5e-3/60; %hour
 dx = 5/1000; %5m
 vmax = [120;90]; %120km/h
 T = 1.5;% hour

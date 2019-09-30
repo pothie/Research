@@ -1,10 +1,11 @@
 % Wong
-dt = 1.5e-3/60; %seconds
+dt = 1.5e-3/60; %hour seconds
 dx = 5/1000; %5m
-v1max = 90; %3/100m/s (120km/h)
-T = 0.015;%1.5*60*60; % 1.5h
+vmax = [120;90]; %120km/h
+T = 1.5;% hour
 D = 2; %2km
 x = 0:dx:D; %space grid
+
 % time grid
 if floor(T/dt)*dt~=T
     t=[0:dt:T T];
@@ -12,24 +13,32 @@ else
     t = 0:dt:T;
 end
 k0 = 50; % 50 veh/km
-q = @(x) v1max*x.*exp(-(x./k0).^2./2);
-v = @(x) v1max*exp(-(x./k0).^2./2);
 
-U = NLLF(x,t,Up(x),q);
+% fundamental relation
+q = @(x,n) vmax(n)*x.*exp(-(x./k0).^2./2);
+v = @(x,n) vmax(n)*exp(-(x./k0).^2./2);
+dq = @(x) v(x).*(1-x.^2/k0^2);
 
-plot(x,U(:,end));
+% Initial density
+u0 = zeros(size(x));
+pt = [0.25 10;0.5 50;1 50;1.25 10];
+u1 = Up(t,pt);
+uend1 = ones(size(t))*0;
+
+% Calculate density
+U = NLLF(x,t,u0,q,dq,u1,uend1);
+plot(U(:,:),v(U(:,:)),'.');
 xlabel('distance')
-ylabel('density')
+ylabel('speed')
+
 figure()
-for i=1:10
-    plot(t,q(U(40*i,:)),'.')
-    hold on
-end
-xlabel('time');
+plot(U(:,:),q(U(:,:)),'.');
+xlabel('density');
 ylabel('flow');
-hold off
+
 figure()
-%plot(x,q(U(:,end)))
 [X,Y] = meshgrid(x,t);
 contour(Y,X,U',200)
 colorbar()
+xlabel('time')
+ylabel('distance')

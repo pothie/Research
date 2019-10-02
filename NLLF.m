@@ -2,48 +2,53 @@
 % t: grid of time (vector) last element:T - floor(T/dt)*dt
 % u: initial condition
 % f: f(u)
-% df: flux
-% Uend1: U(end+1,t)
-% U1: U(-1,t)
-function U = NLLF(x,t,u,f,df,U1,Uend1)
-    if t == 0
+% df: f'(u)
+function [U, tgrid]= NLLF(x,T,u,f,df)
+    pt = [0.25 10;0.5 50;1 50;1.25 10];
+    if T == 0
         U = u;
     elseif x == 0
-        U = U1;
+        U = Up(0:1.5e-3:T,pt);
     else
-    n_t = length(t);
-    dt = t(2)-t(1);
+    CFL = 0.9;
     dx = x(2)-x(1);
-    U = zeros(length(x),n_t);
     U(:,1) = u;
-    % alpha = max flux'
-    flux = @(x,y,alpha) (1/2)*(f(x)+f(y))-(1*alpha)*(-x+y);
-
-    for i=1:n_t-1
-        a = max(abs(df(U(:,i))));
-        if (i==n_t-1) && (t(end)-t(end-1)~=dt)
-            dt = t(end)-t(end-1);
+    % alpha = max q'
+    flux = @(x,y,alpha) (1/2)*(f(x)+f(y))+(alpha/2)*(x-y);
+    tstep = 1;
+    tgrid(tstep) = 0;
+    
+    while T-tgrid(tstep) > 0
+        a = max(abs(df(U(:,tstep))));
+        dt = CFL*dx/a;
+        %a = 0.9*dx/dt;
+        tpass = tgrid(tstep);
+        if tpass+dt>T
+            dt = T-tpass;
         end
-        U(2:end-1,i+1)= U(2:end-1,i)-(dt/dx)*(flux(U(2:end-1,i),U(3:end,i),a)...
-            -flux(U(1:end-2,i),U(2:end-1,i),a));
         
-        %Periodic BC
-        %U(end,i+1) = U(end,i)-(dt/dx)*(flux(U(end,i),U(2,i),dt)...
-        %    -flux(U(end-1,i),U(end,i),dt));
-        %U(1,i+1) = U(end,i);
+        U(2:end-1,tstep+1)= U(2:end-1,tstep)-...
+            (dt/dx)*(flux(U(2:end-1,tstep),U(3:end,tstep),a)...
+            -flux(U(1:end-2,tstep),U(2:end-1,tstep),a));
         
-        %One-sided BC (FTBS)
-        
-        %Ghost points
-        if (1.125<=t(i+1)) && (t(i+1)<=1.175)
-            U(end,i+1) = 200;
+        Uend1 = Up(tpass,pt);
+        U1 = Up(tpass,pt);
+        %If an accident happens between t=1.125 and t=1.175
+        if (1.125<=tpass+dt) && (tpass+dt<=1.175)
+             U(end,tstep+1) = 200;
         else
-            U(end,i+1) = ...
-                U(end,i)-(dt/dx)*(flux(U(end,i),Uend1(i),a)-flux(U(end-1,i),U(end,i),a));
+            U(end,tstep+1) = ...%Uend1;%...
+                U(end,tstep)-(dt/dx)*(flux(U(end,tstep),Uend1,a)...
+                -flux(U(end-1,tstep),U(end,tstep),a));
         end
-        U(1,i+1) = U1(i); % Given U(0,t)
-         %U(1,i)-(dt/dx)*(flux(U(1,i),U(2,i),a)-flux(U1(i),U(1,i),a));
-
+        
+        U(1,tstep+1) = U1; % Given U(0,t)
+                %U(1,tstep)-(dt/dx)*(flux(U(1,tstep),U(2,tstep),a)...
+                %-flux(U1,U(1,tstep),a));
+         
+        tgrid(tstep+1) = tpass+dt;
+        tstep = tstep+1;
+        
     end  
     end
 end

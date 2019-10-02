@@ -20,7 +20,7 @@ function [U,U1,U2,tgrid] = NLLF2(x,T,ux0,v,dv,q,ut0)
     U2(:,1) = ux0(:,2);
     U(:,1) = U1(:,1)+U2(:,1);
     % alpha = max eigenvalue of A
-    flux = @(x,y,alpha,n) (1/2)*(q(x,n)+q(y,n))+(alpha/2)*(x-y);
+    %flux = @(x,y,alpha,n) (1/2)*(q(x,n)+q(y,n))+(alpha/2)*(x-y);
     tstep = 1;
     tgrid(tstep) = 0;
     
@@ -42,27 +42,32 @@ function [U,U1,U2,tgrid] = NLLF2(x,T,ux0,v,dv,q,ut0)
             dt = T-tpass;
         end
         
+        flux1 = @(x,y,step) ...
+            (1/2)*(q(U1(x,step),U(x,step),1)+q(U1(y,step),U(y,step),1))+(a/2)*(U1(x,step)-U1(y,step));
+        flux2 = @(x,y,step) ...
+            (1/2)*(q(U2(x,step),U(x,step),2)+q(U2(y,step),U(y,step),2))+(a/2)*(U2(x,step)-U2(y,step));
+        
         U1(2:end-1,tstep+1)= U1(2:end-1,tstep)-...
-            (dt/dx)*(flux(U1(2:end-1,tstep),U1(3:end,tstep),a,1)...
-            -flux(U1(1:end-2,tstep),U1(2:end-1,tstep),a,1));
+            (dt/dx)*(flux1(2:length(x)-1,3:length(x),tstep)...
+            -flux1(1:length(x)-2,2:length(x)-1,tstep));
         U2(2:end-1,tstep+1)= U2(2:end-1,tstep)-...
-            (dt/dx)*(flux(U2(2:end-1,tstep),U2(3:end,tstep),a,2)...
-            -flux(U2(1:end-2,tstep),U2(2:end-1,tstep),a,2));
+            (dt/dx)*(flux2(2:length(x)-1,3:length(x),tstep)...
+            -flux2(1:length(x)-2,2:length(x)-1,tstep));
         
         %If an accident happens between t=1.125 and t=1.175
         Uend1 = [0.8 0.2].*Up(tpass,pt);
         Un1 = Uend1;
-        %if (1.125<=tpass+dt) && (tpass+dt<=1.175)
-        %     U1(end,tstep+1) = 0.8*200;
-        %     U2(end,tstep+1) = 0.2*200;
-        %else
-            U1(end,tstep+1) = ...
-                U1(end,tstep)-(dt/dx)*(flux(U1(end,tstep),Uend1(1),a,1)...
-                -flux(U1(end-1,tstep),U1(end,tstep),a,1));
-            U2(end,tstep+1) = ...
-                U2(end,tstep)-(dt/dx)*(flux(U2(end,tstep),Uend1(2),a,2)...
-                -flux(U2(end-1,tstep),U2(end,tstep),a,2));
-        %end
+        if (1.125<=tpass+dt) && (tpass+dt<=1.175)
+             U1(end,tstep+1) = 0.8*200;
+             U2(end,tstep+1) = 0.2*200;
+        else
+            U1(end,tstep+1) = Uend1(1);%...
+                %U1(end,tstep)-(dt/dx)*(flux(length(x),Uend1(1),a,1)...
+                %-flux(U1(end-1,tstep),U1(end,tstep),a,1));
+            U2(end,tstep+1) = Uend1(2);%...
+                %U2(end,tstep)-(dt/dx)*(flux(U2(end,tstep),Uend1(2),a,2)...
+                %-flux(U2(end-1,tstep),U2(end,tstep),a,2));
+        end
         U1(1,tstep+1) = Un1(1); % Given U(0,t)
         U2(1,tstep+1) = Un1(2);
                 %U(1,tstep)-(dt/dx)*(flux(U(1,tstep),U(2,tstep),a)...

@@ -8,8 +8,8 @@ x = 0:dx:D; %space grid
 k0 = 50; % 50 veh/km
 
 % fundamental relation
-v = @(xT,n) vmax(n).*exp(-(xT./k0).^2./2); %xT:Total density
-dv = @(xT,n) v(xT,n).*(-1/k0^2*x);
+v = @(xT,n) vmax(n)*exp(-(xT./k0).^2./2); %xT:Total density
+dv = @(xT,n) vmax(n)*exp(-(xT./k0).^2./2).*(-1/k0^2*xT);
 q = @(x,xT,n) x.*v(xT,n); %x:individual density
 
 % Initial density
@@ -20,6 +20,8 @@ u0 = zeros(length(x),2);
 
 % Calculate density
 [U,U1,U2,t] = NLLF2(x,T,u0,v,dv,q);
+
+%% Plot
 plot(U(:,:),v(U(:,:),1),'b.');
 hold on 
 plot(U(:,:),v(U(:,:),2),'k.');

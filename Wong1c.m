@@ -20,19 +20,20 @@ u0 = zeros(size(x));
 
 %Graphs
 
-%plot(U(:,:),v(U(:,:)),'b.');
-%xlabel('density')
-%ylabel('speed')
+plot(U(301,:),v(U(301,:)),'b.');
+xlabel('density')
+ylabel('speed')
 
-%figure()
-%plot(U(:,:),q(U(:,:)),'b.');
-%xlabel('density');
-%ylabel('flow');
+figure()
+plot(U(301,:),q(U(301,:)),'b.');
+xlabel('density');
+ylabel('flow');
 
-%figure()
+figure()
 imagesc(t,x,U)
 colorbar()
 set(gca, 'XLim', t([1 end]), 'YLim', x([1 end]), 'YDir', 'normal')
+xticks([0.5 1 1.125 1.175])
 xlabel('time')
 ylabel('distance')
 title('Wong 1-class density graph')

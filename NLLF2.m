@@ -16,6 +16,10 @@ function [U,U1,U2,tgrid] = NLLF2(x,T,ux0,v,dv,q,ut0)
     else
     CFL = 0.9;
     dx = x(2)-x(1);
+    U = zeros(length(x),ceil(T/(3e-3/60)));
+    U1 = U;
+    U2 = U;
+    A = zeros(1,ceil(T/(3e-3/60)));
     U1(:,1) = ux0(:,1);
     U2(:,1) = ux0(:,2);
     U(:,1) = U1(:,1)+U2(:,1);
@@ -25,16 +29,15 @@ function [U,U1,U2,tgrid] = NLLF2(x,T,ux0,v,dv,q,ut0)
     tgrid(tstep) = 0;
     
     while T-tgrid(tstep) > 0
-        %dv1dk = max(dv(U(:,tstep),1));
-        %dv2dk = max(dv(U(:,tstep),2));
-        %eigv = 0;
-        for  i=1:length(x)
-            A = [dv(U(i,tstep),1).*U1(i,tstep)+v(U(i,tstep),1) dv(U(i,tstep),1).*U1(i,tstep);
-                 dv(U(i,tstep),2).*U2(i,tstep) dv(U(i,tstep),2).*U2(i,tstep)+v(U(i,tstep),2)];
-            [~,D] = eig(A);
-            eigv = max(abs(diag(D)));
-        end
-        a = max(abs(eigv));
+        
+        b = @(i) dv(U(i,tstep),1).*U1(i,tstep)+v(U(i,tstep),1)+...
+            dv(U(i,tstep),2).*U2(i,tstep)+v(U(i,tstep),2);
+        c = @(i) dv(U(i,tstep),1).*U1(i,tstep).*v(U(i,tstep),2)+...
+            dv(U(i,tstep),2).*U2(i,tstep).*v(U(i,tstep),1)+...
+            v(U(i,tstep),1).*v(U(i,tstep),2);
+        eig = @(x) 1/2*(b(x)+sqrt(b(x).^2-4*c(x)));
+        a = max(eig(1:length(x)));
+        A(tstep) = a;
         dt = CFL*dx/a;
         %a = CFL*dt/dx;
         tpass = tgrid(tstep);
@@ -55,23 +58,22 @@ function [U,U1,U2,tgrid] = NLLF2(x,T,ux0,v,dv,q,ut0)
             -flux2(1:length(x)-2,2:length(x)-1,tstep));
         
         %If an accident happens between t=1.125 and t=1.175
-        Uend1 = [0.8 0.2].*Up(tpass,pt);
-        Un1 = Uend1;
+        
         if (1.125<=tpass+dt) && (tpass+dt<=1.175)
-             U1(end,tstep+1) = 0.8*200;
-             U2(end,tstep+1) = 0.2*200;
-        else
-            U1(end,tstep+1) = Uend1(1);%...
-                %U1(end,tstep)-(dt/dx)*(flux(length(x),Uend1(1),a,1)...
-                %-flux(U1(end-1,tstep),U1(end,tstep),a,1));
-            U2(end,tstep+1) = Uend1(2);%...
-                %U2(end,tstep)-(dt/dx)*(flux(U2(end,tstep),Uend1(2),a,2)...
-                %-flux(U2(end-1,tstep),U2(end,tstep),a,2));
+            Uend1 = 200;
+        elseif (tpass+dt>=1.175)
+            Uend1 = 0;
+        else 
+            Uend1 = U(end,tstep);
         end
+        
+        U1(end,tstep+1) = 0.8*Uend1;
+        U2(end,tstep+1) = 0.2*Uend1;
+        
+        Un1 = [0.8 0.2].*Up(tpass,pt);
         U1(1,tstep+1) = Un1(1); % Given U(0,t)
         U2(1,tstep+1) = Un1(2);
-                %U(1,tstep)-(dt/dx)*(flux(U(1,tstep),U(2,tstep),a)...
-                %-flux(U1,U(1,tstep),a));
+        
         U(:,tstep+1) = U1(:,tstep+1)+U2(:,tstep+1); 
         tgrid(tstep+1) = tpass+dt;
         tstep = tstep+1;

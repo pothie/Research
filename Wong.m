@@ -2,7 +2,7 @@
 %% 
 dx = 5/1000; %5m
 vmax = [90;120]; %120km/h
-T = 0.5;% hour
+T = 1.5;% hour
 D = 2; %2km
 x = 0:dx:D; %space grid
 k0 = 50; % 50 veh/km

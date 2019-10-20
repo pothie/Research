@@ -17,6 +17,8 @@ function [U, tgrid]= NLLF(x,T,u,f,df)
     flux = @(x,y,alpha) (1/2)*(f(x)+f(y))+(alpha/2)*(x-y);
     tstep = 1;
     tgrid(tstep) = 0;
+    % Test function
+    test = @(x,t) -sin(x).*sin(t)+cos(t).^2.*sin(x).*cos(x);
     
     while T-tgrid(tstep) > 0
         a = max(abs(df(U(:,tstep))));
@@ -27,7 +29,8 @@ function [U, tgrid]= NLLF(x,T,u,f,df)
             dt = T-tpass;
         end
         
-        U(2:end-1,tstep+1)= U(2:end-1,tstep)-...
+        U(2:end-1,tstep+1)= dt*test(x(2:end-1),tpass)'+...
+            U(2:end-1,tstep)-...
             (dt/dx)*(flux(U(2:end-1,tstep),U(3:end,tstep),a)-...
             flux(U(1:end-2,tstep),U(2:end-1,tstep),a));
         
@@ -41,7 +44,7 @@ function [U, tgrid]= NLLF(x,T,u,f,df)
         %    Uend1 = U(end-1,tstep);
         %end
         
-        U(end,tstep+1) = ...
+        U(end,tstep+1) = dt*test(x(end),tpass)'+...
                 U(end,tstep)-(dt/dx)*(flux(U(end,tstep),U(2,tstep),a)...
                 -flux(U(end-1,tstep),U(end,tstep),a));
         

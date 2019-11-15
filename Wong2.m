@@ -1,4 +1,4 @@
-% Wong
+% Wong experiment 2
 dt = 1.5e-3/60; % hour
 dx = 5/1000; %5m
 vmax = [120;90]; %3/100m/s (120km/h)
@@ -6,12 +6,6 @@ T = 0.02;%1.5h
 D = 2; %2km
 x = 0:dx:D; %space grid
 
-% time grid
-if floor(T/dt)*dt~=T
-    t=[0:dt:T T];
-else
-    t = 0:dt:T;
-end
 k0 = 50; % 50 veh/km
 
 % fundamental relation

@@ -5,8 +5,7 @@
 % dv: derivative of speed
 % q: flow
 % pce: pce values of different classes
-function [U,U1,U2,tgrid] = NLLF3(x,T,ux0,v,dv,q,pce)
-    
+function [U,U1,U2,tgrid] = NLLF4(x,T,ux0,v,dv,q,xT)
     CFL = 0.9;
     dx = x(2)-x(1);
     % preallocate U,U1,U2
@@ -15,7 +14,7 @@ function [U,U1,U2,tgrid] = NLLF3(x,T,ux0,v,dv,q,pce)
     U2 = U;
     U1(:,1) = ux0(:,1);
     U2(:,1) = ux0(:,2);
-    U(:,1) = pce*[U1(:,1) U2(:,1)]';
+    U(:,1) = xT(U1(:,1),U2(:,1));
     Up1 = U1(:,1);
     Up2 = U2(:,1);
     Upt = U(:,1);
@@ -23,19 +22,18 @@ function [U,U1,U2,tgrid] = NLLF3(x,T,ux0,v,dv,q,pce)
     tgrid(tstep) = 0;
     
     while T-tgrid(tstep) > 0
-        
-        b = @(i) dv(Upt(i),1,1).*Up1(i)+v(Upt(i),1)+...
-            dv(Upt(i),2,2).*Up2(i)+v(Upt(i),2);
-        c = @(i) dv(Upt(i),1,1).*Up1(i).*v(Upt(i),2)+...
-            dv(Upt(i),2,2).*Up2(i).*v(Upt(i),1)+v(Upt(i),1).*v(Upt(i),2);%-...
+        b = @(i) dv(Up1(i),Up2(i),Upt(i),1,1).*Up1(i)+v(Upt(i),1)+...
+            dv(Up1(i),Up2(i),Upt(i),2,2).*Up2(i)+v(Upt(i),2);
+        c = @(i) dv(Up1(i),Up2(i),Upt(i),1,1).*Up1(i).*v(Upt(i),2)+...
+            dv(Up1(i),Up2(i),Upt(i),2,2).*Up2(i).*v(Upt(i),1)+v(Upt(i),1).*v(Upt(i),2);%-...
             %Up1(i).*Up2(i).*(dv(Upt(i),1,1).*dv(Upt(i),2,2)-dv(Upt(i),1,2).*dv(Upt(i),2,1));
         eig = @(x) 1/2*(b(x)+sqrt(b(x).^2-4*c(x)));
-        a =  max(abs(eig(1:length(x))));
+        a = max(abs(eig(1:length(x))));
 
         flux1 = @(x,y) ...
-            (1/2)*(q(Up1(x),Upt(x),1)+q(Up1(y),Upt(y),1))+(a/2).*(Up1(x)-Up1(y));
+            (1/2)*(q(Up1(x),Upt(x),1)+q(Up1(y),Upt(y),1))+(a/2)*(Up1(x)-Up1(y));
         flux2 = @(x,y) ...
-            (1/2)*(q(Up2(x),Upt(x),2)+q(Up2(y),Upt(y),2))+(a/2).*(Up2(x)-Up2(y));
+            (1/2)*(q(Up2(x),Upt(x),2)+q(Up2(y),Upt(y),2))+(a/2)*(Up2(x)-Up2(y));
         
         dt = CFL*dx/a;
         tpass = tgrid(tstep);
@@ -62,7 +60,7 @@ function [U,U1,U2,tgrid] = NLLF3(x,T,ux0,v,dv,q,pce)
         U2(1,tstep+1) = U2(2,tstep+1);%U2(1,tstep)-...
             %(dt/dx)*(flux1(2,1) -flux1(1,1));
         
-        U(:,tstep+1) = pce*[U1(:,tstep+1) U2(:,tstep+1)]'; 
+        U(:,tstep+1) = xT(U1(:,tstep+1),U2(:,tstep+1)); 
         
         Up1 = U1(:,tstep+1);
         Up2 = U2(:,tstep+1);

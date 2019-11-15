@@ -1,23 +1,19 @@
 %Fastlane quadratic equation testing
-format short g
 vmax = [30 27.5];
 vc = 25;
 L = [5 30]; %L1 was 6, L2 was 18
-pjam = 1/L(1);
-pc = pjam/6;
+kjam = 1/L(1);
+kc = kjam/6;
 T = [1 2]; %T(2) was 1.5
-w = (vc*pc)/(pjam-pc);
+w = (vc*kc)/(kjam-kc);
 if w > L(1)/T(1)
     disp('Attention! w>L(1)/T(1)')
 end
 
 af = L+T.*vmax;
-ac = T*w*pjam;
-bf = -T.*((vmax-vc)/pc);
+ac = T*w*kjam;
+bf = -T.*((vmax-vc)/kc);
 bc = L-T*w;
-
-dt = 1;
-dn = 5/6;
 
 % Check the exstence of solution
 sbf = @(x) bf*x; % x is a column vector
@@ -32,7 +28,7 @@ xlabel('k1')
 ylabel('k2')
 % colorbar
 hold on
-contour(X,Y,add(X,Y),[pc,pc],'ShowText','on')
+contour(X,Y,add(X,Y),[kc,kc],'ShowText','on')
 hold off
 title('b^2-4ac')
 

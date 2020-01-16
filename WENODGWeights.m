@@ -1,0 +1,34 @@
+function[Q,Xm,Xp]=WENODGWeights(m,iV);
+%function[Q,Xm,Xp]=WENODGWeights(m,iV);
+%Purpose:ComputeoperatorstoenableevaluationofWENOsmoothness
+%indicatorandWENOpolynomialoforderm.
+Q=zeros(m+1,m+1);Pmat=zeros(m+1,m+1);Xm=Pmat;Xp=Pmat;
+%Computequadraturepoints
+[x,w]=LegendreGQ(m);Lambda=diag(w);
+%InitialmatricesofLegendrepolynomails
+for i=1:m+1;
+Pmat(i,:)=LegendreP(x,i-1)';
+Xm(i,:)=LegendreP(x-2,i-1)';
+Xp(i,:)=LegendreP(x+2,i-1)';
+end
+%Computematricescorrespondingtoincreasingorderofderivative
+for l=1:m
+%Setupoperatortorecoverderivaties
+A=zeros(m+2-l,m+2-l);A(1,1)=1/sqrt((2*l+1)*(2*l-1));
+A(m+2-l,m+2-l)=1/(sqrt(2*(m+2)+1)*sqrt(2*(m+2)-1));
+for i=2:m-l+1
+Ah=1/(sqrt(2*(l-1+i)+1)*sqrt(2*(l-1+i)-1));
+A(i,i)=Ah;A(i+1,i-1)=-Ah;
+end
+%Recoverderivativesatquadraturepoints
+Ph1=A\Pmat(l:m+1,:);
+Pmat(1:l,:)=0;Pmat(l+1:m+1,:)=Ph1(1:m-l+1,:);
+%Computesmoothnessoperatorfororderlandupdate
+Qh=Pmat*Lambda*Pmat';
+Q=Q+2^(2*l-1)*Qh;
+end
+%Initializeoperatorforsmoothnessindicatorinnodalspace
+Q=iV'*Q*iV;
+%Initializeinterpolationmatrices
+Xp=iV'*Xp;Xm=iV'*Xm;
+return

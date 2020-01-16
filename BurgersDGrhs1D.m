@@ -1,0 +1,13 @@
+function[rhsu]=BurgersDGrhs1D(x,u,h,k,m,N,Ma,S,VtoE,maxvel)
+%function[rhsu]=BurgersDGrhs1D(x,u,h,k,m,N,Ma,S,VtoE,maxvel)
+%Purpose:EvaluatetheRHSofBurgersequationsusingaDGmethod
+Imat=eye(m+1);ue=zeros(N+2,2);
+%Extenddataandassignboundaryconditions
+[ue]=extendDG(u(VtoE),'P',0,'P',0);
+%Computenumericalfluxesatinterfaces
+fluxr=(ue(2,2:N+1).^2+ue(1,3:N+2).^2)/2-maxvel/2.*(ue(1,3:N+2)-ue(1,2:N+1));
+fluxl=(ue(2,1:N).^2+ue(1,2:N+1).^2)/2-maxvel/2.*(ue(1,2:N+1)-ue(2,1:N));
+%ComputerighthandsideofMaxwell'sequation
+ru=S'*(u.^2)-(Imat(:,m+1)*fluxr(1,:)-Imat(:,1)*fluxl(1,:));
+rhsu=(h/2*Ma)\ru;
+return

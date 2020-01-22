@@ -1,40 +1,43 @@
-%Constant PCE
+%Dynamic PCE test 2
 vmax = [30 27.5];
 vc = 25;
 L = [6 18]; %L1 was 6, L2 was 18
 kjam = 1/L(1);
 kc = kjam/6;
 w = (vc*kc)/(kjam-kc);
-pce = [1 L(2)/(L(1))];
+TH = [1 1.5];
 
 % fundamental relation
 % uv and udv are universial variables
 v = @(xT,n) uv(xT,n,vmax,vc,L(1));
-dv = @(xT,m,n) udv(xT,m,vmax,vc,L(1))*pce(n);
+dxT = @(x1,x2,xT,n) udxT(x1,x2,xT,n,L,TH,vmax,vc,kjam,kc);
+dv = @(x1,x2,xT,m,n) udv(xT,m,vmax,vc,L(1)).*dxT(x1,x2,xT,n);
 q = @(x,xT,n) x.*v(xT,n);
+xT = @(x1,x2) uxT(x1,x2,L,TH,vmax,vc,kjam,kc);
+pce = @(xT,n) (L(n)+TH(n).*v(xT,n))./(L(1)+TH(1).*v(xT,1));
 
 % Discretization
-x0 = -5500;
-xend = 10000;%did 1000
-dx = 5;
+x0 = 0;
+xend = 5;
+dx = 0.1;
 x = x0:dx:xend;
-T = 1200; %1200
+T = 288;%2880; %1200
 
 % Initial density
-dis = [0.8 0.2]./pce;
-pt = [-2000 0.5*kc;-2000 kjam;0 kjam;0 0];
-ux0 = Up(x,pt)'*dis;
+pt = [0.1 0.5*kc;-0.1 kjam;4 kjam;4 0];
+dis = [0.8 0.2];
+ux0 = Up(x,pt)'*dis./[pce(Up(x,pt),1);pce(Up(x,pt),2)]';
 
 %% Calculate density
-[UCUP,U1CUP,U2CU,tCUP] = CU3(x,T,ux0,v,dv,q,pce);
-[ULFP,U1LF,U2LF,tLFP] = NLLF3(x,T,ux0,v,dv,q,pce);
-
+%[U,U1,U2,t] = CU3(x,T,ux0,v,dv,q,xT);
+[UCUT,U1CUT,U2CUT,tCUT] = CU4(x,T,ux0,v,dv,q,xT);
+[ULFT,U1LFT,U2LFT,tLFT] = NLLF4(x,T,ux0,v,dv,q,xT);
 % graph
 figure()
-imagesc(tLFP,x,ULFP)
+imagesc(tLFT,x,ULFT)
 colorbar()
-set(gca, 'XLim', tLFP([1 end]), 'YLim', x([1 end]), 'YDir', 'normal')
-xticks([600 800])
+set(gca, 'XLim', tLFT([1 end]), 'YLim', x([1 end]), 'YDir', 'normal')
+xticks([600 800 1200])
 
 testpt = floor(length(x)/2);
 figure()
@@ -52,20 +55,6 @@ ylabel('Flow')
 figure()
 for i = 1:7
     hold on
-    plot(x,U(:,i*1e3));
+    plot(x,U(:,i*2e3));
     legend();
 end
-dxCU = 25;
-xCU = x0:dxCU:xend;
-
-dxLF = 5;
-xLF = x0:dxLF:xend;
-
-plot(xCU,UCUP(:,end),'b-')
-hold on
-plot(xLF,ULFP(:,end),'r-')
-
-plot(xCU,UCU(:,end),'k*')
-hold on
-plot(xLF,ULF(:,end),'y*')
-legend("CUP","LFP","CU","LF")

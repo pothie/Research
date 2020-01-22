@@ -29,8 +29,8 @@ function [y1,y2,dt] = CUscheme2(U1,U2,dx,q,dv,v)
     
     a1 =[eigp1';eigm1';zeros(1,n-1)];
     a2 =[eigp2';eigm2';zeros(1,n-1)];
-    ap = max(a1)'*2; 
-    am = min(a2)'*2;
+    ap = max(a1)'*4; 
+    am = min(a2)'*4;
     
     if any(ap==am) 
         disp("ap==am")
@@ -38,16 +38,11 @@ function [y1,y2,dt] = CUscheme2(U1,U2,dx,q,dv,v)
     end
     
     %H = (ap.*f(um)-am.*f(up)+ap.*am.*(up-um))./(ap-am);
-    a = max(max(ap,abs(am)));
-    H1 = (q(um1,um,1)+q(up1,up,1))/2-(a/2)*(up1-um1);%(ap.*q(um1,um,1)-am.*q(up1,up,1)+ap.*am.*(up1-um1))./(ap-am);
-    H2 = (q(um2,um,2)+q(up2,up,2))/2-(a/2)*(up2-um2);%(ap.*q(um2,um,2)-am.*q(up2,up,2)+ap.*am.*(up2-um2))./(ap-am);
-    
-%     a = max(max(ap,abs(am)));
-%     U = U1+U2*2;
-%     H1 = (1/2)*(q(U1(1:end-1),U(1:end-1),1)+q(U1(2:end),U(2:end),1))...
-%             -(a/2).*(U1(2:end)-U1(1:end-1));
-%     H2 = (1/2)*(q(U2(1:end-1),U(1:end-1),2)+q(U2(2:end),U(2:end),2))...
-%             -(a/2).*(U2(2:end)-U2(1:end-1));
+    %a = max(max(ap,abs(am)));
+    %H1 = (q(um1,um,1)+q(up1,up,1))/2-(a/2)*(up1-um1);
+    H1=(ap.*q(um1,um,1)-am.*q(up1,up,1)+ap.*am.*(up1-um1))./(ap-am);
+    %H2 = (q(um2,um,2)+q(up2,up,2))/2-(a/2)*(up2-um2);
+    H2=(ap.*q(um2,um,2)-am.*q(up2,up,2)+ap.*am.*(up2-um2))./(ap-am);
 
     y1 = -(1/dx)*(H1(2:end)-H1(1:end-1));
     y2 = -(1/dx)*(H2(2:end)-H2(1:end-1));

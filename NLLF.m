@@ -10,10 +10,10 @@ function [U, tgrid]= NLLF(x,T,u,f,df)
     elseif x == 0
         U = Up(0:1.5e-3:T,pt);
     else
+    %s = @(x,t) -sin(x).*sin(t)+sin(x).*cos(x).*cos(t).^2;
     CFL = 0.9;
     dx = x(2)-x(1);
     U(:,1) = u;
-    % alpha = max q'
     flux = @(x,y,alpha) (1/2)*(f(x)+f(y))+(alpha/2)*(x-y);
     tstep = 1;
     tgrid(tstep) = 0;
@@ -21,7 +21,6 @@ function [U, tgrid]= NLLF(x,T,u,f,df)
     while T-tgrid(tstep) > 0
         a = max(abs(df(U(:,tstep))));
         dt = CFL*dx/a;
-        %a = 0.9*dx/dt;
         tpass = tgrid(tstep);
         if tpass+dt>T
             dt = T-tpass;
@@ -31,23 +30,22 @@ function [U, tgrid]= NLLF(x,T,u,f,df)
             (dt/dx)*(flux(U(2:end-1,tstep),U(3:end,tstep),a)-...
             flux(U(1:end-2,tstep),U(2:end-1,tstep),a));
         
-        %U1 = Up(tpass,pt);
-        %If an accident happens between t=1.125 and t=1.175
-        %if (1.125<=tpass+dt) && (tpass+dt<=1.175)
-        %    Uend1 = 200;
-        %elseif (tpass+dt>=1.175)
-        %    Uend1 = 0;
-        %else 
-        %    Uend1 = U(end-1,tstep);
-        %end
+        U1 = Up(tpass,pt);
+        if (1.125<=tpass+dt) && (tpass+dt<=1.175)
+           Uend1 = 200;
+        elseif (tpass+dt>=1.175)
+           Uend1 = 0;
+        else 
+           Uend1 = U(end-1,tstep);
+        end
         
-        U(end,tstep+1) = ...
-                U(end,tstep)-(dt/dx)*(flux(U(end,tstep),U(2,tstep),a)...
-                -flux(U(end-1,tstep),U(end,tstep),a));
+        U(end,tstep+1) = U(end-1,tstep+1);
+                %U(end,tstep)-(dt/dx)*(flux(U(end,tstep),U(2,tstep),a)...
+                %-flux(U(end-1,tstep),U(end,tstep),a));
         
-        U(1,tstep+1) = U(end,tstep+1); % Given U(0,t)
+        U(1,tstep+1) = U1;
                 %U(1,tstep)-(dt/dx)*(flux(U(1,tstep),U(2,tstep),a)...
-                %-flux(U1,U(1,tstep),a));
+                %-flux(U(end-1,tstep),U(1,tstep),a));
          
         tgrid(tstep+1) = tpass+dt;
         tstep = tstep+1;

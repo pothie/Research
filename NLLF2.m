@@ -5,7 +5,7 @@
 % df: flux
 % Uend1: U(end+1,t)
 % U1: U(-1,t)
-function [U,U1,U2,tgrid] = NLLF2(x,T,ux0,v,dv,q,ut0)
+function [U,U1,U2,tgrid] = NLLF2(x,T,ux0,v,dv,q)
     pt = [0.25 10;0.5 50;1 50;1.25 10];
     if T == 0
         U = ut0;

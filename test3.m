@@ -1,36 +1,65 @@
-% nonlinear burger's
-figure()
+% Discontinuous function testing
+% Burger's equation
+a=0;
+b=2*pi;
+q = @(x) x.^2./2; 
+dq = @(x) x;
+% kjam = 1/6;
+% kc = kjam/6;
+% pt = [-21 0.5*kc;-20+1 kjam;0-1 kjam;0+1 0];
+%ux0 = @(x) 0.5+sin(x);
+%v = @(x,n) x/2; %xT:Total density
+%dv = @(xT,n) 1/2;
+%q = @(x,xT,n)  xT./2.*x; %x:individual density
+%x0 = 0.2;
+T = 0.5;
+u_exact = @(x,t) sin(x).*cos(t);
+%error = zeros(6,1);
 
-T = 1/5;
-a = -1;
-b = 1;
-for i=1:4
-    dx=0.001;
-    dt=dx*0.1;%LF: dx^2 LW:0.5*dx
-    m=1/dx;
-    x=linspace(a,b,m+1);
-    x0 = 0.2;
-    u0=U0(x,x0,2,-1);
-    exact = @(x,t) U0(x-1*t,x0,2,-1);
-    f = @(x) x.^2;
-
-    if floor(T/dt)*dt~=T
-        t=[0:dt:T T];
-    else
-        t = 0:dt:T;
-    end
-
-    u = NLLW(x,t,u0,f);
-
-    error=norm(exact(x,T)-u(:,end),inf);
-    subplot(2,2,i);
-    plot(x,exact(x,T),'r')
+for i = 1:4
+    m(i) = 10*2^(1+i);
+    x = linspace(a,b,m(i)+1)';
+    ux0 = sin(x);
+    [U,t] = NLLF(x,T,ux0,q,dq);
     hold on
-    %plot(x,u0,'k')
-    plot(x,u(:,end))
-    legend('exact','approximation')
-    %figure()
-    %[X,Y] = meshgrid(x,0:dt:T);
-    %contour(X,Y,u',5,'ShowText','on')
-
+    plot(x,U(:,end))
+    xlabel('x');
+    ylabel('u');
+    legend();
+    error(i) = norm(u_exact(x,T) - U(:,end),inf)*1/m(i);
 end
+
+plot(x,u_exact(x,T),'b')
+disp(error)
+hold off
+
+figure()
+loglog(error,'r')
+hold on; 
+loglog((1/2).^(1:6));
+
+hold off
+
+%figure()
+%for j = 1:3
+%hold on
+%plot(x,U(:,j*100));
+%legend();
+%end
+T = 20;
+m = 160;
+x = linspace(a,b,m+1)';
+ux0 = Up(x,pt)';
+[U1,~] = CU(x,T,ux0,q,dq);
+[U2,~] = NLLF(x,T,ux0,q,dq);
+ULF = U2(:,end);
+UCU = U1(:,end);
+plot(x,ULF,'rx');
+hold on;
+plot(x,UCU,'b.');
+plot(x,ux0');
+%plot(x,u_exact(x,T),'b')
+xlabel('x');
+legend('Lax-Friedrichs','Central Upwind');%,'exact solution');
+ylabel('u');
+

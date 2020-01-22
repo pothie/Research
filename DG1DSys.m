@@ -1,4 +1,4 @@
-function[u]=BurgersDG1D(x,u,h,m,N,CFL,FinalTime,f,df)
+function[u]=DG1DSys(x,up,ul,h,m,N,CFL,FinalTime,f,df)
 %function[u]=BurgersDG1D(x,u,h,m,N,CFL,FinalTime)
 %Purpose:Integrate 1D equation until FinalTime using a DG
 %scheme and 3rd order SSP-RKmethod
@@ -7,14 +7,14 @@ r=LegendreGL(m);V=VandermondeDG(m,r);D=DmatrixDG(m,r,V);
 Ma=inv(V*V');S=Ma*D;iV=inv(V);
 %Compute operator for WENO smoothness evaluator
 [Q,Xm,Xp]=WENODGWeights(m,iV);
-%Initialize extraction vector
+%Initializeextractionvector
 VtoE=zeros(2,N);
 for j=1:N
 VtoE(1,j)=(j-1)*(m+1)+1;VtoE(2,j)=j*(m+1);
 end
-%Initialize filter matrix
+%Initializefiltermatrix
 %F=FilterDG(m,0,10,V);
-%Compute smallest spatial scale timestep
+%Computesmallestspatialscaletimestep
 rLGLmin = min(abs(r(1)-r(2)));
 time=0;tstep=0;
 %Initializeparametersfornonlinearviscosity
@@ -22,8 +22,7 @@ nu=zeros(m+1,N);nu0=2;kappa=-6;c2=1;
 %integratescheme
 while(time<FinalTime)
 %Decideontimestep
-maxvel=max(max(abs(df(u)))); %df
-k=CFL*rLGLmin*h/maxvel; 
+maxvel=max(max(abs(df(u))));k=CFL*rLGLmin*h/maxvel; %df
 if(time+k>FinalTime) k=FinalTime-time;end
 %Updatesolution-stage1
 rhsu=BurgersDGrhs1D(x,u,h,k,m,N,Ma,S,VtoE,maxvel,f,time);

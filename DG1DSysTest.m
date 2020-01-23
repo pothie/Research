@@ -12,14 +12,17 @@ h=(xmax-xmin)/N;
 %Define initial conditions
 %u=sin(2*pi*x)+0.8;%periodicBCneeded
 pt = [0.25 10;0.5 50;1 50;1.25 10];
-u = Up(x,pt);
+u(1:2,:) = 0.8*Up(x,pt);
+u(3:4,:) = 0.1*Up(x,pt);
 %u=(1-sign(x-0.2))/2+1;%ConstantBCneeded
 %SolveProblem
-vmax = 90; %120km/h
-k0 = 50; % 50 veh/km 
-q = @(x) vmax*x.*exp(-(x./k0).^2./2);
-v = @(x) vmax*exp(-(x./k0).^2./2);
-dq = @(x) v(x).*(1-x.^2/k0^2); %by hand
-% q = @(x) x.^2;
-% dq = @(x) 2*x;
-[u]=BurgersDG1D(x,u,h,m,N,CFL,FinalTime,q,dq);r=r(:);
+pce = [1 2];
+vmax = [90;120]; %120km/h
+k0 = 50; % 50 veh/km
+% fundamental relation
+v = @(xT,n) vmax(n)*exp(-(xT./k0).^2./2); %xT:Total density
+dv = @(xT,n,m) vmax(n)*exp(-(xT./k0).^2./2).*(-1/k0^2*xT).*pce(n);
+q = @(x,xT,n) x.*v(xT,n); %x:individual density
+xT = @(x) pce*x;
+
+[u]=DG1DSys(x,u,h,m,N,CFL,FinalTime,q,v,dv,xT);r=r(:);

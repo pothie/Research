@@ -29,8 +29,8 @@ function [y1,y2,dt] = CUscheme2(U1,U2,dx,q,dv,v)
     
     a1 =[eigp1';eigm1';zeros(1,n-1)];
     a2 =[eigp2';eigm2';zeros(1,n-1)];
-    ap = max(a1)'*4; 
-    am = min(a2)'*4;
+    ap = max(a1)'; 
+    am = min(a2)';
     
     if any(ap==am) 
         disp("ap==am")

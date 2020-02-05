@@ -48,8 +48,8 @@ function [U,U1,U2,tgrid] = NLLF4(x,T,ux0,v,dv,q,xT)
         U1(end,tstep+1) = U1(end-1,tstep+1);
         U2(end,tstep+1) = U2(end-1,tstep+1);
         
-        U1(1,tstep+1) = U1(2,tstep+1);
-        U2(1,tstep+1) = U2(2,tstep+1);
+        U1(1,tstep+1) = U1(1,tstep);
+        U2(1,tstep+1) = U2(1,tstep);
         
         U(:,tstep+1) = xT(U1(:,tstep+1),U2(:,tstep+1)); 
         

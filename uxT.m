@@ -1,4 +1,5 @@
 function xTnew = uxT(x1,x2,L,TH,vmax,vc,kjam,kc)
+ %x1,x2 are strictly column vectors
     w = (vc*kc)/(kjam-kc);
     af = L+TH.*vmax;
     ac = TH*w*kjam;

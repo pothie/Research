@@ -16,6 +16,7 @@ time=0;tstep=0;
 %integratescheme
 while(time<FinalTime)
 %Decideontimestep
+uAtZero = u(1:2:3,1);
 um = u(1:2:3,:);
 up = u(2:2:4,:);
 uc1 = u(1:2,:);
@@ -49,12 +50,15 @@ u(3:4,:)=WENOlimitDG(x,u(3:4,:),m,h,N,V,iV,Q,Xm,Xp);
 %  plot(x,u(1:2,:));
 %  hold on
 %  plot(x,u(3:4,:));
-plot(x,[xT(u(1:2:3,:));xT(u(2:2:4,:))])
-ylim([0 0.2]);
-xlim([-5500 1000]);
-title(time);
-hold off
-pause(0.1);
+if mod(time,0.005)<k
+    hold on
+    plot(x,[xT(u(1:2:3,:));xT(u(2:2:4,:))])
+    ylim([0 40]);
+    xlim([min(min(x)) max(max(x))]);
+    legend(num2str(time));
+    pause(0.1);
+end
+u(1:2:3,1) = uAtZero;
 time=time+k;tstep=tstep+1;
 end
 return

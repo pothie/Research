@@ -1,8 +1,9 @@
-function[u1,u2]=DG1DSys(x,u1,u2,h,m,N,CFL,FinalTime,q,v,dv,xT)
+function[u1r,u1l,u2r,u2l,tgrid]=DG1DSys(x,u1,u2,h,m,N,CFL,FinalTime,q,v,dv,xT)
 %function[u]=BurgersDG1D(x,u,h,m,N,CFL,FinalTime)
 %Purpose:Integrate 1D equation until FinalTime using a DG
 %scheme and 3rd order SSP-RKmethod
 %Initialize operators at Legendre Gauss Lobatto grid
+figure()
 r=LegendreGL(m);V=VandermondeDG(m,r);D=DmatrixDG(m,r,V);
 Ma=inv(V*V');S=Ma*D;
 iV=inv(V);
@@ -24,7 +25,7 @@ c = dv(uT,1,1).*u1.*v(uT,2)+...
 eig1 = 1/2*(b+sqrt(b.^2-4*c));
 eig2 = 1/2*(b-sqrt(b.^2-4*c));
 maxvel=max(max(abs([eig1 eig2])));
-k=CFL*h*rLGLmin/2/maxvel;%*h/maxvel;
+k=CFL*h/2*rLGLmin/maxvel;%*h/maxvel;
 if(time+k>FinalTime) k=FinalTime-time;end
 %Updatesolution-stage1
 [rhsu1,rhsu2]=DGrhs1DSys(x,u1,u2,h,k,m,N,Ma,S,VtoE,maxvel,q,time,xT);
@@ -46,15 +47,21 @@ u1=WENOlimitDG(x,u1_3,m,h,N,V,iV,Q,Xm,Xp);
 u2=WENOlimitDG(x,u2_3,m,h,N,V,iV,Q,Xm,Xp);
 u1 = u1';
 u2 = u2';
-%  plot(x,u(1:2,:));
-%  hold on
-%  plot(x,u(3:4,:));
-plot(x',xT(u1,u2)')
-ylim([0 0.2]);
-xlim([-6000 1000]);
-title(time);
-hold off
-pause(0.1);
+% if mod(time,0.0001)<k
+%     %hold on
+%     plot(x',xT(u1,u2)')%rowvectors x, xT
+%     ylim([0 40]); %40 for Wong, 0.18 for ConstPCE
+%     xlim([min(min(x)) max(max(x))]);
+%     xlabel("distance")
+%     ylabel("density")
+%     legend(num2str(time));
+%     pause(0.1);
+% end
+u1r(:,tstep+1) = u1(:,1);
+u1l(:,tstep+1) = u1(:,2);
+u2r(:,tstep+1) = u2(:,1);
+u2l(:,tstep+1) = u2(:,2);
+tgrid(:,tstep+1) = time;
 time=time+k;tstep=tstep+1;
 end
 return

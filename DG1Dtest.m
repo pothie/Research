@@ -4,7 +4,7 @@ clear all
 m=1;N=40;
 %Setproblemparameters
 xmin=0.0;xmax=2;
-FinalTime=0.05;CFL=0.1;
+FinalTime=0.03;CFL=0.1;
 %Generatemesh
 VX=(xmax-xmin)*(0:N)/N+xmin;r=LegendreGL(m);
 x=ones(m+1,1)*VX(1:N)+0.5*(r+1)*(VX(2:N+1)-VX(1:N));

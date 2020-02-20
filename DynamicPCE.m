@@ -20,14 +20,14 @@ pce = @(xT,n) (L(n)+TH(n).*v(xT,n))./(L(1)+TH(1).*v(xT,1));
 % Discretization
 x0 = -5500;
 xend = 1000;
-dx = 25;
+dx = 50;
 xCU = x0:dx:xend;
 xLF = x0:dx:xend;
 T = 1200; %1200
 
 % Initial density
 pt = [-2000 0.5*kc;-2000 kjam;0 kjam;0 0];
-dis = [0.8 0.2];
+dis = [0.9 0.];
 ux0CU = Up(xCU,pt)'*dis./[pce(Up(xCU,pt),1);pce(Up(xCU,pt),2)]';
 ux0LF = Up(xLF,pt)'*dis./[pce(Up(xLF,pt),1);pce(Up(xLF,pt),2)]';
 
@@ -85,22 +85,22 @@ legend();
 end
 
 %Capacity drop at x for LF
-testPT = 200;
+testPT = 150;
 figure();
 den = UCU(testPT,:);
 flow = q(U1CU(testPT,:),UCU(testPT,:),1)+q(U2CU(testPT,:),UCU(testPT,:),2);
 plot(den,flow,".");
 
 %Capacity drop at x for CU
-testPT = 200;
+testPT = 150;
 figure();
 den = ULF(testPT,:);
 flow = q(U1LF(testPT,:),ULF(testPT,:),1)+q(U2LF(testPT,:),ULF(testPT,:),2);
-plot(den,flow,".");
+plot(den,flow,":");
 
 figure()
 for i = 1:7
     hold on
-    plot(xCU,ULF(:,i*1e2));
+    plot(xCU,ULF(:,i*length(tCU/7)));
     legend();
 end

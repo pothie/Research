@@ -1,4 +1,4 @@
-function [y1,y2,dt] = CUscheme2(U1,U2,dx,q,dv,v)
+function [y1,y2,dt] = CUscheme2(U1,U2,dx,q,dv,v,xT)
     CFL = 0.5;
     n = length(U1);
     
@@ -11,8 +11,8 @@ function [y1,y2,dt] = CUscheme2(U1,U2,dx,q,dv,v)
     um2 = U2(1:end-1)+ux2(1:end-1)*dx/2; % u- j+1/2
     up2 = U2(2:end)-ux2(2:end)*dx/2; % u+ j+1/2
 
-    um = um1+2*um2; % u- j+1/2
-    up = up1+2*up2; % u+ j+1/2
+    um = xT(um1,um2); % u- j+1/2
+    up = xT(up1,up2); % u+ j+1/2
     
     %vector
     bm = dv(um,1,1).*um1+v(um,1)+dv(um,2,2).*um2+v(um,2);
@@ -37,11 +37,7 @@ function [y1,y2,dt] = CUscheme2(U1,U2,dx,q,dv,v)
         disp(ap(ap==am))
     end
     
-    %H = (ap.*f(um)-am.*f(up)+ap.*am.*(up-um))./(ap-am);
-    %a = max(max(ap,abs(am)));
-    %H1 = (q(um1,um,1)+q(up1,up,1))/2-(a/2)*(up1-um1);
     H1=(ap.*q(um1,um,1)-am.*q(up1,up,1)+ap.*am.*(up1-um1))./(ap-am);
-    %H2 = (q(um2,um,2)+q(up2,up,2))/2-(a/2)*(up2-um2);
     H2=(ap.*q(um2,um,2)-am.*q(up2,up,2)+ap.*am.*(up2-um2))./(ap-am);
 
     y1 = -(1/dx)*(H1(2:end)-H1(1:end-1));

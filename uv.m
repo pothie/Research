@@ -8,8 +8,8 @@ function vnew = uv(xT,n,vmax,vc,L1)
     vnew = -1*ones(size(xT));
     
     %assign values    
-    xTf = xT(0-1e-1<=xT&xT<=kc);
-    xTc = xT(kc<xT&xT<=kjam+1e-1); %tol
-    vnew(0-1e-1<=xT&xT<=kc) = vmax(n)-((vmax(n)-vc)/kc).*xTf; 
-    vnew(kc<xT&xT<=kjam+1e-1) = w.*(kjam./xTc-1); %tol
+    xTf = xT(xT<=kc);
+    xTc = xT(kc<xT); 
+    vnew(xT<=kc) = vmax(n)-((vmax(n)-vc)/kc).*xTf; %0-1e-1<=xT&
+    vnew(kc<xT) = w.*(kjam./xTc-1); %&xT<=kjam+1e-1
 end          

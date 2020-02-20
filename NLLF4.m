@@ -79,19 +79,29 @@ function [U,U1,U2,tgrid] = NLLF4(x,T,ux0,v,dv,q,xT)
         Up2(1) = Up2(2);
         
         %Boundary points 
-        U1(end,tstep+1) = Up1(end-1);%Up1(end);
-        U2(end,tstep+1) = Up2(end-1);%Up2(end);
-
-        U1(1,tstep+1) = Up1(2);%Up1(1);
-        U2(1,tstep+1) = Up2(2);%Up2(1);
+%         U1(end,tstep+1) = Up1(end-1);%Up1(end);
+%         U2(end,tstep+1) = Up2(end-1);%Up2(end);
+% 
+%         U1(1,tstep+1) = Up1(2);%Up1(1);
+%         U2(1,tstep+1) = Up2(2);%Up2(1);
+        
+        U1(end,tstep+1) = U1(end,tstep)+...
+            (dt/dx)*(q(Up1(end),Upt(end),1)-q(Up1(end-1),Upt(end-1),1));
+        U2(end,tstep+1) = U2(end,tstep)+...
+            (dt/dx)*(q(Up2(end),Upt(end),2)-q(Up2(end-1),Upt(end-1),2));
+        
+        U1(1,tstep+1) = U1(1,tstep)-...
+            (dt/dx)*(q(Up1(2),Upt(2),1)-q(Up1(1),Upt(1),1));
+        U2(1,tstep+1) = U2(1,tstep)-...
+            (dt/dx)*(q(Up2(2),Upt(2),2)-q(Up2(1),Upt(1),2));
         
         U(:,tstep+1) = xT(U1(:,tstep+1),U2(:,tstep+1)); 
         
-        if mod(tpass,10)<dt
-            plot(x,U(:,tstep+1));
-            title(tpass);
-            pause(0.1);
-        end
+%         if mod(tpass,10)<dt
+%             plot(x,U(:,tstep+1));
+%             title(tpass);
+%             pause(0.1);
+%         end
         
         Up1 = U1(:,tstep+1);
         Up2 = U2(:,tstep+1);

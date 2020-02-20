@@ -38,42 +38,45 @@ function [U,U1,U2,tgrid] = CU4(x,T,ux0,v,dv,q,xT)
         % calculating k2 = un+k1/2
         Up1(2:end-1) = Up1(2:end-1)+k1_1;
         Up2(2:end-1) = Up2(2:end-1)+k1_2;
+        Up1(end) = Up1(end-1);
+        Up2(end) = Up2(end-1);
+        Up1(1) = Up1(2);
+        Up2(1) = Up2(2);
         
         [uav1,uav2,~] = CUscheme3(Up1,Up2,dx,q,dv,v,xT);
         k2_1 = dt*(uav1);
         k2_2 = dt*(uav2);
-%         Up1= U1(:,tstep)*0.75+Up1*0.25;
-%         Up2= U2(:,tstep)*0.75+Up2*0.25;
-%         Up1(2:end-1)= Up1(2:end-1)+k2_1/4;
-%         Up2(2:end-1)= Up2(2:end-1)+k2_2/4;
         
         Up1(2:end-1)= U1(2:end-1,tstep)*0.75+Up1(2:end-1)*0.25+k2_1/4;
         Up2(2:end-1)= U2(2:end-1,tstep)*0.75+Up2(2:end-1)*0.25+k2_2/4;
+        Up1(end) = Up1(end-1);
+        Up2(end) = Up2(end-1);
+        Up1(1) = Up1(2);
+        Up2(1) = Up2(2);
         
-        %put BC here, missing?
         [uav1,uav2,~] = CUscheme3(Up1,Up2,dx,q,dv,v,xT);
         k3_1 = dt*(uav1);
         k3_2 = dt*(uav2);
-%         Up1= U1(:,tstep)/3+Up1*2/3;
-%         Up2= U2(:,tstep)/3+Up2*2/3;
-%         U1(2:end-1,tstep+1)= Up1(2:end-1)+k3_1*2/3;
-%         U2(2:end-1,tstep+1)= Up2(2:end-1)+k3_2*2/3;
 
         Up1(2:end-1)= U1(2:end-1,tstep)/3+Up1(2:end-1)*2/3+k3_1*2/3;
         Up2(2:end-1)= U2(2:end-1,tstep)/3+Up2(2:end-1)*2/3+k3_2*2/3;
-
-        U1(2:end-1,tstep+1) = Up1(2:end-1);
-        U2(2:end-1,tstep+1) = Up2(2:end-1);
+        Up1(end) = Up1(end-1);
+        Up2(end) = Up2(end-1);
+        Up1(1) = Up1(2);
+        Up2(1) = Up2(2);
+        
+        U1(:,tstep+1) = Up1;
+        U2(:,tstep+1) = Up2;
         
         %Boundary points 
-        U1(end,tstep+1) = Up1(end-1);%Up1(end);
-        U2(end,tstep+1) = Up2(end-1);%Up2(end);
-
-        U1(1,tstep+1) = Up1(2);%Up1(1);
-        U2(1,tstep+1) = Up2(2);%Up2(1);
+        U1(end,tstep+1) = U1(end-1,tstep+1);
+        U2(end,tstep+1) = U2(end-1,tstep+1);
+        
+        U1(1,tstep+1) = U1(2,tstep+1);
+        U2(1,tstep+1) = U2(2,tstep+1);
          
         U(:,tstep+1) = xT(U1(:,tstep+1),U2(:,tstep+1)); 
-        
+       
         tgrid(tstep+1) = tpass+dt;
         tstep = tstep+1;
     end  

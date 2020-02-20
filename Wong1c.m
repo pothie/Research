@@ -1,5 +1,6 @@
 % Wong
 % Parameters
+clear all
 dx = 5/1000; %5m
 vmax = 90; %120km/h
 T = 1.5;% hour
@@ -17,17 +18,24 @@ u0 = zeros(size(x));
 
 % Calculate density
 [U1,t1] = NLLF(x,T,u0,q,dq);
-for i = 1000:1000:length(t1)
-    plot(x,U1(:,i),'r')
-    hold on
-end
+figure()
+imagesc(t1,x,U1)
+colorbar()
+set(gca, 'XLim', t1([1 end]), 'YLim', x([1 end]), 'YDir', 'normal')
+xticks([0.5 1 1.125 1.175])
+xlabel('time')
+ylabel('distance')
+title('Wong 1-class density graph')
 
 figure()
 [U2,t2] = CU1c(x,T,u0,q,dq);
-for i = 1000:1000:length(t2)
-    plot(x,U2(:,i),'b')
-    hold on
-end
+imagesc(t2,x,U2)
+colorbar()
+set(gca, 'XLim', t2([1 end]), 'YLim', x([1 end]), 'YDir', 'normal')
+xticks([0.5 1 1.125 1.175])
+xlabel('time')
+ylabel('distance')
+title('Wong 1-class density graph')
 %% Graphs
 figure()
 plot(U(301,:),v(U(301,:)),'b.');

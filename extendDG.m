@@ -9,10 +9,10 @@ ue=zeros(m+1,N+2);ue(:,2:N+1)=u;
 if (BCl=='P')||(BCr=='P')
 ue(:,1)=u(:,N);ue(:,N+2)=u(:,1);
 return;
-end;
+end
 %Leftextension
 if BCl=='D'
-ue(:,1)=ul;%-flipud(u(:,1))+2*ul;
+ue(:,1)=ul;
 else
 ue(:,1)=flipud(u(:,1));
 end

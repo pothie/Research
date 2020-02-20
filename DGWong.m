@@ -28,4 +28,37 @@ q = @(x,xT,n) x.*v(xT,n); %x:individual density
 % xT = @(x) pce*x;
 % [u]=DG1DSysTEST(x,u,h,m,N,CFL,FinalTime,q,v,dv,xT);r=r(:);
 xT = @(x1,x2) pce(1)*x1+pce(2)*x2;
-[u1r,u1l,u2r,u2l,tgrid]=DG1DSys(x',u1',u2',h,m,N,CFL,FinalTime,q,v,dv,xT);r=r(:);
+[u1r,u1l,u2r,u2l,u1m,u2m,tgrid]=DG1DSys(x',u1',u2',h,m,N,CFL,FinalTime,q,v,dv,xT);r=r(:);
+
+% Graph
+UDGr = xT(u1r,u2r);
+UDGl = xT(u1l,u2l);
+UDGm = xT(u1m,u2m);
+piece = 5;
+figure()
+if m==1
+for i = 1:piece
+    hold on 
+    plot(x,[UDGr(:,ceil(i*length(tgrid)/5)) UDGl(:,ceil(i*length(tgrid)/5))]');
+    xlabel("Distance")
+    ylabel("Density")
+    title("Wong in DG, m=1, N="+num2str(N))
+end
+else 
+for i = 1:piece
+    hold on 
+    plot(x,[UDGr(:,ceil(i*length(tgrid)/5)) UDGm(:,ceil(i*length(tgrid)/5))...
+        UDGl(:,ceil(i*length(tgrid)/5))]')
+    xlabel("Distance")
+    ylabel("Density")
+    title("Wong in DG, m=2, N="+num2str(N))
+end
+end
+
+figure()
+imagesc(tgrid,x(1,:),UDGl)
+colorbar()
+set(gca, 'XLim', tgrid([1 end]), 'YLim', x(1,[1 end]), 'YDir', 'normal')
+xlabel('time')
+ylabel('distance')
+title('DG:Wong 2-class density graph(left values)')

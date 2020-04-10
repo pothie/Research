@@ -1,0 +1,35 @@
+function[u]=LinwaveDG1D(x,u,h,m,N,CFL,FinalTime)
+%function[u]=LinwaveDG1D(x,u,h,m,N,CFL,FinalTime)
+%Purpose:Integrate1DlinearwaveequationuntilFinalTimeusingaDG
+%schemeand3rdorderSSP-RKmethod
+%InitializeoperatorsatLegendreGaussLobattogrid
+r=LegendreGL(m);V=VandermondeDG(m,r);D=DmatrixDG(m,r,V);
+Ma=inv(V*V');S=Ma*D;iV=inv(V);
+%ComputeoperatorforWENOsmoothnessevaluator
+[Q,Xm,Xp]=WENODGWeights(m,iV);
+%Initializeextractionvector
+VtoE=zeros(2,N);
+for j=1:N
+    VtoE(1,j)=(j-1)*(m+1)+1;VtoE(2,j)=j*(m+1);
+end
+%Computesmallestspatialscaletimestep
+rLGLmin=abs(r(1)-r(2));
+time=0;tstep=0;
+%Settimestep
+k=CFL*rLGLmin*h;
+%integratescheme
+while(time<FinalTime)
+if(time+k>FinalTime)k=FinalTime-time;end
+%Updatesolution
+rhsu=LinwaveDGrhs1D(x,u,h,k,m,N,Ma,S,VtoE,1.0);
+u1=u+k*rhsu;
+%u1=WENOlimitDG(x,u1,m,h,N,V,iV,Q,Xm,Xp);
+rhsu=LinwaveDGrhs1D(x,u1,h,k,m,N,Ma,S,VtoE,1.0);
+u2=(3*u+u1+k*rhsu)/4;
+%u2=WENOlimitDG(x,u2,m,h,N,V,iV,Q,Xm,Xp);
+rhsu=LinwaveDGrhs1D(x,u2,h,k,m,N,Ma,S,VtoE,1.0);
+u=(u+2*u2+2*k*rhsu)/3;
+%u=WENOlimitDG(x,u,m,h,N,V,iV,Q,Xm,Xp);
+time=time+k;tstep=tstep+1;
+end
+return

@@ -4,7 +4,7 @@
 % f: f(u)
 % df: f'(u)
 function [U, tgrid]= NLLF(x,T,u,f,df)
-    pt = [0.25 10;0.5 50;1 50;1.25 10];
+    pt = [0 0;0.1 40;0.9 40;1 0];
     if T == 0
         U = u;
     elseif x == 0
@@ -39,8 +39,7 @@ function [U, tgrid]= NLLF(x,T,u,f,df)
 %            Uend1 = U(end-1,tstep+1);
 %         end
         
-        U(end,tstep+1) = U(end,tstep)-...
-            (dt/dx)*(f(U(end,tstep))-f(U(end-1,tstep)));
+        U(end,tstep+1) = U(end-1,tstep+1);
         
         U(1,tstep+1) = Up(tpass,pt);
 

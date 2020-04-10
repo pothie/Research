@@ -31,7 +31,8 @@ function [U,U1,U2,tgrid] = NLLF3(x,T,ux0,v,dv,q,pce)
         eig(2,:) = 1/2*(b-sqrt(b.^2-4*c));
         a =  max(max(abs(eig)));
 
-        dt = CFL*dx/a;%
+%         a = 120;
+        dt = CFL*dx/a;
         tpass = tgrid(tstep);
         if tpass+dt>T
             dt = T-tpass;
@@ -47,15 +48,20 @@ function [U,U1,U2,tgrid] = NLLF3(x,T,ux0,v,dv,q,pce)
         U2(2:end-1,tstep+1)= Up2(2:end-1)-...
             (dt/dx)*(flux2(2:end)-flux2(1:end-1));
         
-        U1(end,tstep+1) = U1(end,tstep)-...
-            (dt/dx)*(q(Up1(end),Upt(end),1)-q(Up1(end-1),Upt(end-1),1));
-        U2(end,tstep+1) = U2(end,tstep)-...
-            (dt/dx)*(q(Up2(end),Upt(end),2)-q(Up2(end-1),Upt(end-1),2));
-        
-        U1(1,tstep+1) = U1(1,tstep)-...
-            (dt/dx)*(q(Up1(2),Upt(2),1)-q(Up1(1),Upt(1),1));%quantity supposed to be 0
-        U2(1,tstep+1) = U2(1,tstep)-...
-            (dt/dx)*(q(Up2(2),Upt(2),2)-q(Up2(1),Upt(1),2));
+%         U1(end,tstep+1) = Up1(end)-(dt/dx)*(q(Up1(end),Upt(end),1)-flux1(end));
+%         U2(end,tstep+1) = Up2(end)-(dt/dx)*(q(Up2(end),Upt(end),2)-flux2(end));
+%         %U2(end-1,tstep+1);
+%         
+%         U1(1,tstep+1) = Up1(1)-(dt/dx)*(q(Up1(1),Upt(1),1)-flux1(1)); 
+%         U2(1,tstep+1) = Up2(1)-(dt/dx)*(q(Up2(1),Upt(1),2)-flux2(1));
+        %U2(2,tstep+1);
+
+% Periodic BC
+        U1(end,tstep+1) = Up1(end)-(dt/dx)*(flux1(1)-flux1(end));
+        U2(end,tstep+1) = Up2(end)-(dt/dx)*(flux2(1)-flux2(end));
+
+        U1(1,tstep+1) = U1(end,tstep+1);
+        U2(1,tstep+1) = U2(end,tstep+1);
         
         U(:,tstep+1) = pce*[U1(:,tstep+1) U2(:,tstep+1)]'; 
         

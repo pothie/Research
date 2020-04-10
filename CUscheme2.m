@@ -42,5 +42,7 @@ function [y1,y2,dt] = CUscheme2(U1,U2,dx,q,dv,v,xT)
 
     y1 = -(1/dx)*(H1(2:end)-H1(1:end-1));
     y2 = -(1/dx)*(H2(2:end)-H2(1:end-1));
+%     y1 = -(1/dx)*(H1([2:end 1])-H1(1:end));
+%     y2 = -(1/dx)*(H2([2:end 1])-H2(1:end));
     dt = CFL*dx/max(max(ap,abs(am)));
 end

@@ -2,12 +2,10 @@ function[rhsu1,rhsu2]=DGrhs1DSysDy(x,u1,u2,h,k,m,N,Ma,S,VtoE,maxvel,f,time,xT)
 %function[rhsu]=BurgersDGrhs1D(x,u,h,k,m,N,Ma,S,VtoE,maxvel)
 %Purpose:Evaluate the RHS of Burgers equations usinga DGmethod
 Imat=eye(m+1);%ue=zeros(N+2,2); 
-u1 = u1'; %row
-u2 = u2';
 uT = xT(u1,u2);
 %calculate flux
-
-flux1 = zeros(1,1+length(u1));
+[~,n] = size(u1);
+flux1 = zeros(1,1+n);
 flux2 = zeros(size(flux1));
 
 flux1(2:end-1) = (f(u1(end,1:end-1),uT(end,1:end-1),1)+f(u1(1,2:end),uT(1,2:end),1))/2 ...

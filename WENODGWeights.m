@@ -11,24 +11,24 @@ Pmat(i,:)=LegendreP(x,i-1)';
 Xm(i,:)=LegendreP(x-2,i-1)';
 Xp(i,:)=LegendreP(x+2,i-1)';
 end
-%Computematricescorrespondingtoincreasingorderofderivative
+%Compute matrices corresponding to increasing order of derivative
 for l=1:m
-%Setupoperatortorecoverderivaties
+%Set up operator to recover derivaties
 A=zeros(m+2-l,m+2-l);A(1,1)=1/sqrt((2*l+1)*(2*l-1));
 A(m+2-l,m+2-l)=1/(sqrt(2*(m+2)+1)*sqrt(2*(m+2)-1));
 for i=2:m-l+1
 Ah=1/(sqrt(2*(l-1+i)+1)*sqrt(2*(l-1+i)-1));
 A(i,i)=Ah;A(i+1,i-1)=-Ah;
 end
-%Recoverderivativesatquadraturepoints
+%Recover derivatives at quadrature points
 Ph1=A\Pmat(l:m+1,:);
 Pmat(1:l,:)=0;Pmat(l+1:m+1,:)=Ph1(1:m-l+1,:);
-%Computesmoothnessoperatorfororderlandupdate
+%Compute smoothness operator for order l and update
 Qh=Pmat*Lambda*Pmat';
 Q=Q+2^(2*l-1)*Qh;
 end
 %Initializeoperatorforsmoothnessindicatorinnodalspace
 Q=iV'*Q*iV;
-%Initializeinterpolationmatrices
+%Initialize inter polation matrices
 Xp=iV'*Xp;Xm=iV'*Xm;
 return

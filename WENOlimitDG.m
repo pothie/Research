@@ -1,24 +1,24 @@
 function[ulimit]=WENOlimitDG(x,u,m,h,N,V,iV,Q,Xm,Xp);
 %functionulimit=WENOlimitDG(x,u,m,h,N,V,iV,Q,Xm,Xp);
 %Purpose:ApplyWENOlimiterbyZhong-Shu(2013)
-%tou-anm'thorderpolynomial
-eps0=1.0e-6;
-%Setconstantsforlimiting
+%to u-an m'th order polynomial
+eps0=1.0e-10;
+%Set constants forlimiting
 eps1=1e-10;p=1;
 gammam1=0.001;gamma0=0.998;gammap1=0.001;
-%Computecellaveragesandcellcenters
+%Compute cell averages and cell centers
 uh=iV*u;uh(2:(m+1),:)=0;uavg=V*uh;ucell=uavg(1,:);ulimit=u;
-%Computeextendedpolynomialswithzerocellaverages
+%Compute extended polynomials with zero cell averages
 [ue]=extendDG(u,'P',0,'P',0);
 Pm=Xp'*ue;Pp=Xm'*ue;
 Ph=iV*Pm;Ph(1,:)=0;Pm=V*Ph;
 Ph=iV*Pp;Ph(1,:)=0;Pp=V*Ph;
 %Extendcellaverages
-[ve]=extendDG(ucell,'P',0,'P',0);
+[ve]=extendDG(ucell,'P',0,'P',0); 
 %extractendvaluesandcellaveragesforeachelement
 uel=u(1,:);uer=u(end,:);
 vj=ucell;vjm=ve(1:N);vjp=ve(3:N+2);
-%Findelementsthatrequirelimiting
+%Find elements that require limiting
 vel=vj-minmod1([(vj-uel)' (vj-vjm)' (vjp-vj)'])';
 ver=vj+minmod1([(uer-vj)' (vj-vjm)' (vjp-vj)'])';
 ids=find(abs(vel-uel)>eps0|abs(ver-uer)>eps0);
@@ -28,7 +28,7 @@ if(~isempty(ids))
 pm1=Pm(:,ids)+ones(m+1,1)*vj(ids);
 p0=u(:,ids);
 pp1=Pp(:,ids+2)+ones(m+1,1)*vj(ids);
-%ComputesmoothnessindicatorsandWENOweights
+%Compute smoothness indicators and WENOweights
 betam1=diag(pm1'*Q*pm1);alpham1=gammam1./(eps1+betam1).^(2*p);
 beta0=diag(p0'*Q*p0);alpha0=gamma0./(eps1+beta0).^(2*p);
 betap1=diag(pp1'*Q*pp1);alphap1=gammap1./(eps1+betap1).^(2*p);

@@ -1,0 +1,13 @@
+function[rhsu]=LinwaveDGrhs1D(x,u,h,k,m,N,Ma,S,VtoE,maxvel)
+%function[rhsu]=LinwaveDGrhs1D(x,u,h,k,m,N,Ma,S,VtoE,maxvel)
+%Purpose:EvaluatetheRHSofthelinearwaveequationsusingaDGmethod
+Imat=eye(m+1);ue=zeros(2,N+2);
+%Extenddataandassignboundaryconditions
+[ue]=extendDG(u(VtoE),'P',0,'P',0);
+%Computenumericalfluxesatinterfaces
+fluxr=(ue(2,2:N+1)+ue(1,3:N+2))/2-maxvel/2.*(ue(1,3:N+2)-ue(2,2:N+1));
+fluxl=(ue(2,1:N)+ue(1,2:N+1))/2-maxvel/2.*(ue(1,2:N+1)-ue(2,1:N));
+%ComputerighthandsideofMaxwell'sequation
+ru=S'*u-(Imat(:,m+1)*fluxr(1,:)-Imat(:,1)*fluxl(1,:));
+rhsu=(h/2*Ma)\ru;
+return

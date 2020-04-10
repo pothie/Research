@@ -12,13 +12,13 @@ return;
 end
 %Leftextension
 if BCl=='D'
-ue(:,1)=ul;
+ue(:,1)=-flipud(u(:,1))+2*ul;
 else
 ue(:,1)=flipud(u(:,1));
 end
 %Rightextension
 if BCr=='D'
-ue(:,N+2)=ur;%-flipud(u(:,N))+2*ur;
+ue(:,N+2)=-flipud(u(:,N))+2*ur;
 else
 ue(:,N+2)=flipud(u(:,N));
 end

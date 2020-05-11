@@ -1,3 +1,4 @@
+% C0 test funtion 
 function y = p4(x)
     y = zeros(size(x));
     a = 0.5;

@@ -1,7 +1,7 @@
 function[Q,Xm,Xp]=WENODGWeights(m,iV);
 %function[Q,Xm,Xp]=WENODGWeights(m,iV);
-%Purpose:ComputeoperatorstoenableevaluationofWENOsmoothness
-%indicatorandWENOpolynomialoforderm.
+%Purpose:Compute operators to enable evaluation of WENO smoothness
+%indicator and WENO polynomial of order m.
 Q=zeros(m+1,m+1);Pmat=zeros(m+1,m+1);Xm=Pmat;Xp=Pmat;
 %Computequadraturepoints
 [x,w]=LegendreGQ(m);Lambda=diag(w);
